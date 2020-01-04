@@ -139,6 +139,7 @@ import github.Team
 import github.View
 
 from . import Consts
+from .Consts import mediaTypeShadowCatPreview
 
 
 class Repository(github.GithubObject.CompletableGithubObject):
@@ -1301,6 +1302,7 @@ class Repository(github.GithubObject.CompletableGithubObject):
         :param base: string
         :param head: string
         :param maintainer_can_modify: bool
+        :param draft: bool
         :rtype: :class:`github.PullRequest.PullRequest`
         """
         if len(args) + len(kwds) >= 4:
@@ -1309,7 +1311,13 @@ class Repository(github.GithubObject.CompletableGithubObject):
             return self.__create_pull_2(*args, **kwds)
 
     def __create_pull_1(
-        self, title, body, base, head, maintainer_can_modify=github.GithubObject.NotSet
+        self,
+        title,
+        body,
+        base,
+        head,
+        maintainer_can_modify=github.GithubObject.NotSet,
+        draft=github.GithubObject.NotSet
     ):
         assert isinstance(title, (str, six.text_type)), title
         assert isinstance(body, (str, six.text_type)), body
@@ -1318,16 +1326,16 @@ class Repository(github.GithubObject.CompletableGithubObject):
         assert maintainer_can_modify is github.GithubObject.NotSet or isinstance(
             maintainer_can_modify, bool
         ), maintainer_can_modify
+        assert draft is github.GithubObject.NotSet or isinstance(draft, bool), draft
+
+        parameters = {'title': title, 'body': body, 'base': base, 'head': head}
+
         if maintainer_can_modify is not github.GithubObject.NotSet:
-            return self.__create_pull(
-                title=title,
-                body=body,
-                base=base,
-                head=head,
-                maintainer_can_modify=maintainer_can_modify,
-            )
-        else:
-            return self.__create_pull(title=title, body=body, base=base, head=head)
+            parameters['maintainer_can_modify'] = maintainer_can_modify
+        if draft is not github.GithubObject.NotSet:
+            parameters['draft'] = draft
+
+        return self.__create_pull(**parameters)
 
     def __create_pull_2(self, issue, base, head):
         assert isinstance(issue, github.Issue.Issue), issue
@@ -1337,8 +1345,15 @@ class Repository(github.GithubObject.CompletableGithubObject):
 
     def __create_pull(self, **kwds):
         post_parameters = kwds
+        if 'draft' in post_parameters:
+            headers = {'Accept': Consts.mediaTypeShadowCatPreview}
+        else:
+            headers = None
         headers, data = self._requester.requestJsonAndCheck(
-            "POST", self.url + "/pulls", input=post_parameters
+            "POST",
+            self.url + "/pulls",
+            input=post_parameters,
+            headers=headers
         )
         return github.PullRequest.PullRequest(
             self._requester, headers, data, completed=True

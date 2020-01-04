@@ -99,6 +99,9 @@ mediaTypeRequireMultipleApprovingReviews = (
 # https://developer.github.com/changes/2018-05-24-user-migration-api/
 mediaTypeMigrationPreview = "application/vnd.github.wyandotte-preview+json"
 
+# https://developer.github.com/changes/2019-02-14-draft-pull-requests/
+mediaTypeShadowCatPreview = 'application/vnd.github.shadow-cat-preview+json'
+
 # https://developer.github.com/v3/search/#highlighting-code-search-results-1
 highLightSearchPreview = "application/vnd.github.v3.text-match+json"
 

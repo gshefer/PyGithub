@@ -1079,6 +1079,20 @@ class Repository(Framework.TestCase):
             True,
         )
         self.assertEqual(pull.id, 1436215)
+        self.assertEqual(pull.draft, None)
+
+    def testCreatePullDraft(self):
+        pull = self.repo.create_pull(
+            "Draft Pull request created by PyGithub",
+            "Body of the draft pull request",
+            "master",
+            "addr_issue_1213",
+            True,
+            True
+        )
+        self.assertEqual(pull.id, 361628570)
+        self.assertEqual(pull.draft, True)
+        self.assertEqual(pull.mergeable_state, 'draft')
 
     def testCreateProject(self):
         project = self.repo.create_project(
